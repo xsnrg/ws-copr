@@ -10,7 +10,7 @@
 
 Name:           wsjtx-improved
 Version:        3.2.0
-Release:        2.%{snapshot}%{?dist}
+Release:        3.%{snapshot}%{?dist}
 Summary:        WSJT-X Improved PLUS by DG2YCB (weak-signal amateur radio)
 
 License:        GPL-3.0-or-later
@@ -91,8 +91,13 @@ sed -i -e "s@open(24,file='ALLCALL7.TXT',status='unknown')@open(24,file=trim(exe
 
 export CFLAGS="%{optflags} -fcommon -Wno-error=deprecated-declarations -Wno-error=unused-result -Wno-error=format-security -Wno-error=maybe-uninitialized"
 export CXXFLAGS="%{optflags} -Wno-error=deprecated-declarations -Wno-error=unused-result -Wno-error=format-security -Wno-error=maybe-uninitialized"
-export FFLAGS="%{optflags} -fPIC -fallow-argument-mismatch -std=legacy"
-export FCFLAGS="%{optflags} -fPIC -fallow-argument-mismatch -std=legacy"
+# Nested Fortran functions use trampolines. Fedora's hardened
+# -z noexecstack makes jt9 SIGSEGV/SIGBUS as soon as decode starts.
+# Heap trampolines avoid needing an executable stack; -z execstack
+# is the fallback if an object still requests one.
+export FFLAGS="%{optflags} -fPIC -fallow-argument-mismatch -std=legacy -ftrampoline-impl=heap"
+export FCFLAGS="%{optflags} -fPIC -fallow-argument-mismatch -std=legacy -ftrampoline-impl=heap"
+export LDFLAGS="%{?build_ldflags} -Wl,-z,execstack"
 export FC=/usr/bin/gfortran
 export PKG_CONFIG_ALLOW_SYSTEM_LIBS=1
 
@@ -103,7 +108,8 @@ cd %{oname}
     -DWSJT_SKIP_MANPAGES=ON \
     -DBoost_NO_SYSTEM_PATHS=FALSE \
     -DBOOST_INCLUDEDIR=%{_includedir}/boost \
-    -DBOOST_LIBRARYDIR=%{_libdir}
+    -DBOOST_LIBRARYDIR=%{_libdir} \
+    -DCMAKE_EXE_LINKER_FLAGS="%{?build_ldflags} -Wl,-z,execstack"
 
 %cmake_build
 
@@ -151,6 +157,9 @@ echo "WSJT-X Improved PLUS %{version} snapshot %{snapshot} (Qt6)" \
 %{_datadir}/doc/wsjtx/
 
 %changelog
+* Sat Aug 22 2026 Jim Howard <xsnrg@users.noreply.github.com> - 3.2.0-3.260818
+- jt9 decode crash: -ftrampoline-impl=heap and -Wl,-z,execstack
+
 * Sat Aug 22 2026 Jim Howard <xsnrg@users.noreply.github.com> - 3.2.0-2.260818
 - Keep ALLCALL7.TXT in bindir and open it read-only via exe_dir (jt9 -e)
 
