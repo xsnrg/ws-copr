@@ -96,6 +96,7 @@ cd %{oname}
 %cmake \
     -Dhamlib_STATIC=FALSE \
     -DWSJT_GENERATE_DOCS=OFF \
+    -DWSJT_SKIP_MANPAGES=ON \
     -DBoost_NO_SYSTEM_PATHS=FALSE \
     -DBOOST_INCLUDEDIR=%{_includedir}/boost \
     -DBOOST_LIBRARYDIR=%{_libdir}
@@ -162,3 +163,4 @@ echo "WSJT-X Improved PLUS %{version} snapshot %{snapshot} (Qt6)" > %{buildroot}
 - Initial Copr package of WSJT-X Improved PLUS 3.2.0 (260818, Qt6)
 - Conflicts with official Fedora wsjtx
 - Use xsnrg/hamlib (>= 4.7.2), drop bundled hamlib and rigctl-wsjtx helpers
+- Skip manpages (a2x) for the initial Copr builds
