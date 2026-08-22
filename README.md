@@ -25,6 +25,15 @@ Remove official `wsjtx` first if it is installed:
 sudo dnf swap wsjtx wsjtx-improved
 ```
 
+## Hamlib
+
+Build and run against **`xsnrg/hamlib`**, not only Fedora stock hamlib.
+
+- Build-time extra repo: `copr://xsnrg/hamlib` so `hamlib-devel >= 4.7.2` resolves.
+- Runtime repo dependency: enabling `wsjtx-improved` also enables `xsnrg/hamlib` for users.
+
+Improved 3.2.0 PLUS is published against Hamlib 4.7.2 (the bundled tarball the spec deletes in `%prep`).
+
 ## Create the Copr project
 
 You need `copr-cli` logged in with a Fedora Account System token.
@@ -37,8 +46,10 @@ copr-cli create wsjtx-improved \
   --chroot fedora-43-x86_64 \
   --chroot fedora-44-x86_64 \
   --chroot fedora-rawhide-x86_64 \
-  --description "WSJT-X Improved PLUS (Qt6)" \
-  --instructions "dnf copr enable <you>/wsjtx-improved && dnf swap wsjtx wsjtx-improved"
+  --repo copr://xsnrg/hamlib \
+  --runtime-repo-dependency copr://xsnrg/hamlib \
+  --description "WSJT-X Improved PLUS (Qt6), built against xsnrg/hamlib" \
+  --instructions "dnf copr enable xsnrg/wsjtx-improved && dnf swap wsjtx wsjtx-improved"
 
 copr-cli add-package-scm wsjtx-improved \
   --name wsjtx-improved \
@@ -53,7 +64,13 @@ copr-cli build-package wsjtx-improved --name wsjtx-improved
 
 `--webhook-rebuild on` rebuilds when this Git repo changes. That is not a full upstream watcher yet. When DG2YCB ships a new PLUS drop, bump `Version` / `%snapshot` in `wsjtx-improved.spec` and push; Copr will rebuild from the webhook.
 
-Optional: if you want newer hamlib than Fedora, add your `hamlib-copr` project as an additional repo on the Copr project.
+If the Copr project already exists without the hamlib repo:
+
+```bash
+copr-cli modify wsjtx-improved \
+  --repo copr://xsnrg/hamlib \
+  --runtime-repo-dependency copr://xsnrg/hamlib
+```
 
 ## Updating to a newer PLUS drop
 
@@ -68,6 +85,6 @@ Optional: if you want newer hamlib than Fedora, add your `hamlib-copr` project a
 ## Notes
 
 - The SourceForge archive is nested: outer `wsjtx-VERSION/` contains `src/wsjtx.tgz`.
-- Bundled hamlib is deleted; the build uses system `hamlib-devel`.
+- Bundled hamlib is deleted; Copr builds should use `xsnrg/hamlib` (`hamlib-devel >= 4.7.2`).
 - LTO is disabled. Fortran is built with `-fallow-argument-mismatch -std=legacy`.
 - Standard Improved GUI only (not AL / widescreen). Those are separate upstream tarballs.

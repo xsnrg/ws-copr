@@ -26,7 +26,8 @@ BuildRequires:  make
 BuildRequires:  desktop-file-utils
 BuildRequires:  dos2unix
 BuildRequires:  pkgconfig
-BuildRequires:  hamlib-devel
+# Copr builds should resolve this from xsnrg/hamlib. 3.2.0 PLUS tracks 4.7.2.
+BuildRequires:  hamlib-devel >= 4.7.2
 BuildRequires:  fftw-devel
 BuildRequires:  libusbx-devel
 BuildRequires:  systemd-devel
@@ -39,7 +40,7 @@ BuildRequires:  qt6-qtmultimedia-devel
 BuildRequires:  qt6-qtwebsockets-devel
 BuildRequires:  qt6-qtsvg-devel
 
-Requires:       hamlib
+Requires:       hamlib >= 4.7.2
 Requires:       hicolor-icon-theme
 
 Conflicts:      wsjtx
@@ -160,4 +161,4 @@ echo "WSJT-X Improved PLUS %{version} snapshot %{snapshot} (Qt6)" > %{buildroot}
 * Sat Aug 22 2026 Jim Howard <xsnrg@users.noreply.github.com> - 3.2.0-1.260818
 - Initial Copr package of WSJT-X Improved PLUS 3.2.0 (260818, Qt6)
 - Conflicts with official Fedora wsjtx
-- Use system hamlib, drop bundled hamlib and rigctl-wsjtx helpers
+- Use xsnrg/hamlib (>= 4.7.2), drop bundled hamlib and rigctl-wsjtx helpers
