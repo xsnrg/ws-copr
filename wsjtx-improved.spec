@@ -10,7 +10,7 @@
 
 Name:           wsjtx-improved
 Version:        3.2.0
-Release:        1.%{snapshot}%{?dist}
+Release:        2.%{snapshot}%{?dist}
 Summary:        WSJT-X Improved PLUS by DG2YCB (weak-signal amateur radio)
 
 License:        GPL-3.0-or-later
@@ -77,9 +77,13 @@ dos2unix -k -q *.ui *.txt AUTHORS BUGS NEWS README THANKS *.desktop 2>/dev/null 
 sed -i -e 's@#install (TARGETS udp_daemon message_aggregator wsjtx_app_version@install (TARGETS udp_daemon message_aggregator wsjtx_app_version@g' CMakeLists.txt
 sed -i -e '/^install (TARGETS udp_daemon wsjtx_app_version$/d' CMakeLists.txt
 
-# Keep data files out of bindir
+# Sounds can live in datadir. ALLCALL7.TXT must stay next to jt9:
+# lib/ft8var/cwfilter.f90 opens it as a relative name, and the GUI
+# launches jt9 with -e /usr/bin. status='unknown' would otherwise
+# try to create /usr/bin/ALLCALL7.TXT (permission denied).
 sed -i -z -e 's@install (DIRECTORY\n  ${PROJECT_SOURCE_DIR}/sounds\n  DESTINATION ${CMAKE_INSTALL_BINDIR}@install (DIRECTORY\n  ${PROJECT_SOURCE_DIR}/sounds\n  DESTINATION ${CMAKE_INSTALL_DATADIR}/${CMAKE_PROJECT_NAME}@g' CMakeLists.txt
-sed -i -z -e 's@install (FILES\n  ALLCALL7.TXT\n  DESTINATION ${CMAKE_INSTALL_BINDIR}@install (FILES\n  ALLCALL7.TXT\n  DESTINATION ${CMAKE_INSTALL_DATADIR}/${CMAKE_PROJECT_NAME}@g' CMakeLists.txt
+sed -i -e "s@open(24,file='ALLCALL7.TXT',status='unknown')@open(24,file=trim(exe_dir)//'/ALLCALL7.TXT',status='old',action='read',err=20)@" \
+    lib/ft8var/cwfilter.f90
 
 %build
 # Fortran in this tree is not LTO-safe
@@ -113,13 +117,14 @@ rm -f %{buildroot}%{_bindir}/rigctl*-wsjtx
 # Drop CMake test helper if it got installed
 rm -f %{buildroot}%{_bindir}/inhibit-test
 
-# Some data files still land in bindir
+# Keep ALLCALL7.TXT in bindir (see %prep). Move only leftover TSV data.
 mkdir -p %{buildroot}%{_datadir}/%{oname}
-for f in ALLCALL7.TXT callsign_states.tsv; do
-    if [ -f %{buildroot}%{_bindir}/$f ]; then
-        mv %{buildroot}%{_bindir}/$f %{buildroot}%{_datadir}/%{oname}/
-    fi
-done
+if [ -f %{buildroot}%{_bindir}/callsign_states.tsv ]; then
+    mv %{buildroot}%{_bindir}/callsign_states.tsv %{buildroot}%{_datadir}/%{oname}/
+fi
+if [ -f %{buildroot}%{_bindir}/ALLCALL7.TXT ]; then
+    cp -a %{buildroot}%{_bindir}/ALLCALL7.TXT %{buildroot}%{_datadir}/%{oname}/
+fi
 
 if [ -f %{buildroot}%{_datadir}/applications/%{oname}.desktop ]; then
     desktop-file-edit --set-key=Exec --set-value="wsjtx --style=fusion" \
@@ -146,6 +151,9 @@ echo "WSJT-X Improved PLUS %{version} snapshot %{snapshot} (Qt6)" \
 %{_datadir}/doc/wsjtx/
 
 %changelog
+* Sat Aug 22 2026 Jim Howard <xsnrg@users.noreply.github.com> - 3.2.0-2.260818
+- Keep ALLCALL7.TXT in bindir and open it read-only via exe_dir (jt9 -e)
+
 * Sat Aug 22 2026 Jim Howard <xsnrg@users.noreply.github.com> - 3.2.0-1.260818
 - Initial Copr package of WSJT-X Improved PLUS 3.2.0 (260818, Qt6)
 - Conflicts with official Fedora wsjtx
