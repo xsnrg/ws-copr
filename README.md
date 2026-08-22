@@ -36,12 +36,16 @@ Improved 3.2.0 PLUS is published against Hamlib 4.7.2 (the bundled tarball the s
 
 ## Create the Copr project
 
-You need `copr-cli` logged in with a Fedora Account System token.
+You need `copr-cli` authenticated. There is no `login` subcommand.
 
 ```bash
 sudo dnf install copr-cli
-copr-cli login
+copr whoami
+```
 
+If that fails, open https://copr.fedorainfracloud.org/api/ while signed into FAS, paste the `[copr-cli]` block into `~/.config/copr`, then `chmod 600 ~/.config/copr`. Tokens expire (~180 days). `copr new-api-token` regenerates and **invalidates** the old token.
+
+```bash
 copr-cli create wsjtx-improved \
   --chroot fedora-43-x86_64 \
   --chroot fedora-44-x86_64 \
