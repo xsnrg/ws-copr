@@ -113,6 +113,14 @@ rm -f %{buildroot}%{_bindir}/rigctl*-wsjtx
 # Drop CMake test helper if it got installed
 rm -f %{buildroot}%{_bindir}/inhibit-test
 
+# Some data files still land in bindir
+mkdir -p %{buildroot}%{_datadir}/%{oname}
+for f in ALLCALL7.TXT callsign_states.tsv; do
+    if [ -f %{buildroot}%{_bindir}/$f ]; then
+        mv %{buildroot}%{_bindir}/$f %{buildroot}%{_datadir}/%{oname}/
+    fi
+done
+
 if [ -f %{buildroot}%{_datadir}/applications/%{oname}.desktop ]; then
     desktop-file-edit --set-key=Exec --set-value="wsjtx --style=fusion" \
         %{buildroot}%{_datadir}/applications/%{oname}.desktop
@@ -122,41 +130,20 @@ if [ -f %{buildroot}%{_datadir}/applications/message_aggregator.desktop ]; then
     desktop-file-validate %{buildroot}%{_datadir}/applications/message_aggregator.desktop
 fi
 
-install -p -m 0644 -t %{buildroot}%{_datadir}/doc/%{name} \
-    GUIcontrols.txt jt9.txt v1.7_Features.txt wsjtx_changelog.txt NEWS README THANKS 2>/dev/null || :
-echo "WSJT-X Improved PLUS %{version} snapshot %{snapshot} (Qt6)" > %{buildroot}%{_datadir}/doc/%{name}/PLUS_VERSION.txt
+mkdir -p %{buildroot}%{_datadir}/doc/%{name}
+echo "WSJT-X Improved PLUS %{version} snapshot %{snapshot} (Qt6)" \
+    > %{buildroot}%{_datadir}/doc/%{name}/PLUS_VERSION.txt
 
 %files
-%license COPYING
+%license %{oname}/COPYING
+%doc %{oname}/NEWS %{oname}/README %{oname}/THANKS
 %doc %{_datadir}/doc/%{name}
-%{_bindir}/cablog
-%{_bindir}/EchoCallSim
-%{_bindir}/echosim
-%{_bindir}/fcal
-%{_bindir}/fmeasure
-%{_bindir}/fmtave
-%{_bindir}/fst4sim
-%{_bindir}/ft8code
-%{_bindir}/ft8sim
-%{_bindir}/hash22calc
-%{_bindir}/jt4code
-%{_bindir}/jt65code
-%{_bindir}/jt9
-%{_bindir}/jt9code
-%{_bindir}/message_aggregator
-%{_bindir}/msk144code
-%{_bindir}/q65code
-%{_bindir}/q65sim
-%{_bindir}/qmap
-%{_bindir}/testEchoCall
-%{_bindir}/udp_daemon
-%{_bindir}/wsjtx
-%{_bindir}/wsjtx_app_version
-%{_bindir}/wsprd
+%{_bindir}/*
 %{_datadir}/applications/wsjtx.desktop
 %{_datadir}/applications/message_aggregator.desktop
 %{_datadir}/pixmaps/wsjtx_icon.png
-%{_datadir}/%{oname}
+%{_datadir}/%{oname}/
+%{_datadir}/doc/wsjtx/
 
 %changelog
 * Sat Aug 22 2026 Jim Howard <xsnrg@users.noreply.github.com> - 3.2.0-1.260818
@@ -164,3 +151,4 @@ echo "WSJT-X Improved PLUS %{version} snapshot %{snapshot} (Qt6)" > %{buildroot}
 - Conflicts with official Fedora wsjtx
 - Use xsnrg/hamlib (>= 4.7.2), drop bundled hamlib and rigctl-wsjtx helpers
 - Skip manpages (a2x) for the initial Copr builds
+- Package map65 and cmake-installed data; create docdir before PLUS_VERSION.txt
