@@ -10,7 +10,7 @@
 
 Name:           wsjtx-improved
 Version:        3.2.0
-Release:        3.%{snapshot}%{?dist}
+Release:        4.%{snapshot}%{?dist}
 Summary:        WSJT-X Improved PLUS by DG2YCB (weak-signal amateur radio)
 
 License:        GPL-3.0-or-later
@@ -85,6 +85,12 @@ sed -i -z -e 's@install (DIRECTORY\n  ${PROJECT_SOURCE_DIR}/sounds\n  DESTINATIO
 sed -i -e "s@open(24,file='ALLCALL7.TXT',status='unknown')@open(24,file=trim(exe_dir)//'/ALLCALL7.TXT',status='old',action='read',err=20)@" \
     lib/ft8var/cwfilter.f90
 
+# Upstream CMake appends -Wl,-z,noexecstack and -Xassembler --noexecstack
+# AFTER our LDFLAGS, so GNU_STACK stays RW and jt9 SIGSEGVs on decode.
+sed -i -e 's/-Wl,-z,noexecstack/-Wl,-z,execstack/g' \
+       -e 's/-Xassembler --noexecstack/-Xassembler --execstack/g' \
+    CMakeLists.txt
+
 %build
 # Fortran in this tree is not LTO-safe
 %define _lto_cflags %{nil}
@@ -157,6 +163,9 @@ echo "WSJT-X Improved PLUS %{version} snapshot %{snapshot} (Qt6)" \
 %{_datadir}/doc/wsjtx/
 
 %changelog
+* Wed Aug 26 2026 Jim Howard <xsnrg@users.noreply.github.com> - 3.2.0-4.260818
+- Override CMake -z noexecstack / as --noexecstack so jt9 is RWE
+
 * Sat Aug 22 2026 Jim Howard <xsnrg@users.noreply.github.com> - 3.2.0-3.260818
 - jt9 decode crash: -ftrampoline-impl=heap and -Wl,-z,execstack
 
