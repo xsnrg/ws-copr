@@ -1,8 +1,10 @@
 # WSJT-X Improved PLUS (DG2YCB) for Fedora Copr
 # Source is the official Qt6 PLUS tarball from SourceForge.
-# Bump Version / snapshot together when a newer PLUS drop appears.
+# Version / snapshot below are the last-known PLUS drop and a fallback if
+# SourceForge cannot be queried. .copr/Makefile rewrites them to the newest
+# standard Qt6 PLUS tarball before the SRPM is generated.
 
-%define snapshot 260818
+%define snapshot 260908
 %define oname    wsjtx
 
 # Fortran trampolines still need an executable stack on gfortran
@@ -10,7 +12,7 @@
 
 Name:           wsjtx-improved
 Version:        3.2.0
-Release:        4.%{snapshot}%{?dist}
+Release:        5.%{snapshot}%{?dist}
 Summary:        WSJT-X Improved PLUS by DG2YCB (weak-signal amateur radio)
 
 License:        GPL-3.0-or-later
@@ -163,6 +165,10 @@ echo "WSJT-X Improved PLUS %{version} snapshot %{snapshot} (Qt6)" \
 %{_datadir}/doc/wsjtx/
 
 %changelog
+* Tue Sep 08 2026 Jim Howard <xsnrg@users.noreply.github.com> - 3.2.0-5.260908
+- Always resolve the newest Qt6 PLUS tarball when generating the SRPM
+- Rebuild against PLUS snapshot 260908
+
 * Wed Aug 26 2026 Jim Howard <xsnrg@users.noreply.github.com> - 3.2.0-4.260818
 - Override CMake -z noexecstack / as --noexecstack so jt9 is RWE
 
