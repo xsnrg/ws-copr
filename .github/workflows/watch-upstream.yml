@@ -1,0 +1,49 @@
+name: Watch upstream PLUS
+
+on:
+  schedule:
+    # SourceForge PLUS drops are irregular; check once a day.
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Discover latest Qt6 PLUS tarball
+        run: python3 scripts/discover_latest.py --update-spec wsjtx-improved.spec
+
+      - name: Sync README current pin
+        run: |
+          set -euo pipefail
+          VER=$(awk '/^Version:/{print $2; exit}' wsjtx-improved.spec)
+          SNAP=$(awk '/^%define[[:space:]]+snapshot/{print $3; exit}' wsjtx-improved.spec)
+          python3 - "$VER" "$SNAP" <<'PY'
+          import pathlib, re, sys
+          ver, snap = sys.argv[1], sys.argv[2]
+          path = pathlib.Path("README.md")
+          text = path.read_text()
+          text = re.sub(r"(- Version: `)[^`]+", rf"\g<1>{ver}", text, count=1)
+          text = re.sub(r"(- PLUS snapshot: `)[^`]+", rf"\g<1>{snap}", text, count=1)
+          path.write_text(text)
+          PY
+
+      - name: Commit and push if upstream moved
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add wsjtx-improved.spec README.md
+          if git diff --cached --quiet; then
+            echo "Already on the latest PLUS drop."
+            exit 0
+          fi
+          VER=$(awk '/^Version:/{print $2; exit}' wsjtx-improved.spec)
+          SNAP=$(awk '/^%define[[:space:]]+snapshot/{print $3; exit}' wsjtx-improved.spec)
+          git commit -m "Bump WSJT-X Improved PLUS to ${VER} ${SNAP}"
+          git push
