@@ -1,5 +1,5 @@
 # WS (formerly WSJT-X Improved) Qt6 for Fedora Copr.
-# RPM name stays wsjtx-improved. Source is the standard GUI Qt6 tarball:
+# Source is the standard GUI Qt6 tarball:
 #   WS_vVERSION/Source code/Qt6/ws-VERSION_YYMMDD_qt6.tgz
 # Version / snapshot below are the last-known drop and a fallback if
 # SourceForge cannot be queried. .copr/Makefile rewrites them before the SRPM.
@@ -10,9 +10,9 @@
 # Fortran trampolines still need an executable stack on gfortran
 %undefine _hardened_linker_errors
 
-Name:           wsjtx-improved
+Name:           ws
 Version:        3.2.0
-Release:        5.%{snapshot}%{?dist}
+Release:        6.%{snapshot}%{?dist}
 Summary:        WS (formerly WSJT-X Improved) by DG2YCB (weak-signal amateur radio)
 
 License:        GPL-3.0-or-later
@@ -45,9 +45,6 @@ BuildRequires:  qt6-qtsvg-devel
 Requires:       hamlib >= 4.7.2
 Requires:       hicolor-icon-theme
 
-Conflicts:      wsjtx
-Provides:       wsjtx = %{version}-%{release}
-
 %description
 WS, formerly WSJT-X Improved, is an enhanced edition of WSJT-X published by
 Uwe Risse, DG2YCB. It keeps the familiar WSJT-X workflow and adds
@@ -55,8 +52,8 @@ features such as CQ/73 highlighting, mode buttons, band hopping,
 DX-oriented FT8/FT4 decoding, False Decodes Reduction, Wait and
 Reply/Call, audible alerts, and Cloudlog support.
 
-This package is built from the Qt6 source tarball and conflicts
-with Fedora's official wsjtx package because both install /usr/bin/wsjtx.
+This package is built from the Qt6 source tarball. The program is
+/usr/bin/ws, so it does not replace Fedora's wsjtx.
 
 Modes include FST4, FST4W, FT4, FT8, FT2, JT4, JT9, JT65, Q65,
 MSK144, WSPR, and Echo.
@@ -162,9 +159,11 @@ echo "WS %{version} snapshot %{snapshot} (Qt6)" \
 %{_datadir}/applications/message_aggregator.desktop
 %{_datadir}/pixmaps/ws_icon.png
 %{_datadir}/%{oname}/
-%{_datadir}/doc/ws/
 
 %changelog
+* Sun Sep 27 2026 Jim Howard <xsnrg@users.noreply.github.com> - 3.2.0-6.260924
+- Rename the package from wsjtx-improved to ws
+
 * Sun Sep 27 2026 Jim Howard <xsnrg@users.noreply.github.com> - 3.2.0-5.260924
 - Track upstream WS rename: ws-3.2.0_260924_qt6.tgz
 

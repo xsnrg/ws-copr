@@ -142,9 +142,11 @@ def update_spec(spec_path: pathlib.Path, version: str, snapshot: str) -> bool:
     )
 
     today = datetime.date.today().strftime("%a %b %d %Y")
+    rel = re.search(r"^Release:\s+(\d+)", text, re.M)
+    relnum = rel.group(1) if rel else "1"
     entry = (
         f"* {today} Jim Howard <xsnrg@users.noreply.github.com> "
-        f"- {version}-5.{snapshot}\n"
+        f"- {version}-{relnum}.{snapshot}\n"
         f"- Auto-select upstream WS Qt6 {version} snapshot {snapshot}\n\n"
     )
     text = re.sub(r"(?m)^%changelog\n", f"%changelog\n{entry}", text, count=1)

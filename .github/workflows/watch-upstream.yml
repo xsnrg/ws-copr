@@ -1,4 +1,4 @@
-name: Watch upstream PLUS
+name: Watch upstream WS
 
 on:
   schedule:
@@ -15,14 +15,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Discover latest Qt6 PLUS tarball
-        run: python3 scripts/discover_latest.py --update-spec wsjtx-improved.spec
+      - name: Discover latest Qt6 tarball
+        run: python3 scripts/discover_latest.py --update-spec ws.spec
 
       - name: Sync README current pin
         run: |
           set -euo pipefail
-          VER=$(awk '/^Version:/{print $2; exit}' wsjtx-improved.spec)
-          SNAP=$(awk '/^%define[[:space:]]+snapshot/{print $3; exit}' wsjtx-improved.spec)
+          VER=$(awk '/^Version:/{print $2; exit}' ws.spec)
+          SNAP=$(awk '/^%define[[:space:]]+snapshot/{print $3; exit}' ws.spec)
           python3 - "$VER" "$SNAP" <<'PY'
           import pathlib, re, sys
           ver, snap = sys.argv[1], sys.argv[2]
@@ -38,12 +38,12 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add wsjtx-improved.spec README.md
+          git add ws.spec README.md
           if git diff --cached --quiet; then
-            echo "Already on the latest PLUS drop."
+            echo "Already on the latest WS drop."
             exit 0
           fi
-          VER=$(awk '/^Version:/{print $2; exit}' wsjtx-improved.spec)
-          SNAP=$(awk '/^%define[[:space:]]+snapshot/{print $3; exit}' wsjtx-improved.spec)
-          git commit -m "Bump WSJT-X Improved PLUS to ${VER} ${SNAP}"
+          VER=$(awk '/^Version:/{print $2; exit}' ws.spec)
+          SNAP=$(awk '/^%define[[:space:]]+snapshot/{print $3; exit}' ws.spec)
+          git commit -m "Bump WS to ${VER} ${SNAP}"
           git push
