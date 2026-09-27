@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Find the newest WSJT-X Improved PLUS Qt6 source tarball on SourceForge.
+"""Find the newest WS Qt6 source tarball on SourceForge.
 
-Prefers the standard GUI tarball:
-  wsjtx-X.Y.Z_improved_PLUS_YYMMDD_qt6.tgz
-(not AL / widescreen).
+Upstream renamed WSJT-X Improved to WS. Standard GUI tarball:
+  WS_vX.Y.Z/Source code/Qt6/ws-X.Y.Z_YYMMDD_qt6.tgz
+(not _AL_ or _widescreen_).
 
 Used by .copr/Makefile at SRPM time and by the GitHub Actions watcher.
 """
@@ -24,14 +24,15 @@ USER_AGENT = (
     "(+https://github.com/xsnrg/wsjtx-improved-copr)"
 )
 
-# Standard Qt6 PLUS only. Exclude _AL_ and _widescreen_.
+# Standard Qt6 GUI only. _AL_ and _widescreen_ do not match: the snapshot
+# must follow the version immediately.
 TARBALL_RE = re.compile(
-    r"WSJT-X_v(\d+\.\d+\.\d+)/Source(?:%20| )code/Qt6/"
-    r"wsjtx-\1_improved_PLUS_(\d{6})_qt6\.tgz"
+    r"WS_v(\d+\.\d+\.\d+)/Source(?:%20| )code/Qt6/"
+    r"ws-\1_(\d{6})_qt6\.tgz"
 )
-FOLDER_RE = re.compile(r"WSJT-X_v(\d+\.\d+\.\d+)")
+FOLDER_RE = re.compile(r"WS_v(\d+\.\d+\.\d+)")
 QT6_NAME_RE = re.compile(
-    r"wsjtx-(\d+\.\d+\.\d+)_improved_PLUS_(\d{6})_qt6\.tgz"
+    r"(?<![A-Za-z0-9_])ws-(\d+\.\d+\.\d+)_(\d{6})_qt6\.tgz"
 )
 
 
@@ -98,7 +99,7 @@ def discover() -> tuple[str, str]:
     # Probe the newest series folders directly; SF index pages are often JS-heavy.
     for version in reversed(versions[-3:] or []):
         qt6 = (
-            f"{PROJECT_FILES}WSJT-X_v{version}/Source%20code/Qt6/"
+            f"{PROJECT_FILES}WS_v{version}/Source%20code/Qt6/"
         )
         try:
             found.extend(_from_text(_curl(qt6)))
@@ -107,7 +108,7 @@ def discover() -> tuple[str, str]:
 
     best = _best(found)
     if best is None:
-        raise SystemExit("could not discover a Qt6 PLUS source tarball on SourceForge")
+        raise SystemExit("could not discover a WS Qt6 source tarball on SourceForge")
     return best
 
 
@@ -144,7 +145,7 @@ def update_spec(spec_path: pathlib.Path, version: str, snapshot: str) -> bool:
     entry = (
         f"* {today} Jim Howard <xsnrg@users.noreply.github.com> "
         f"- {version}-5.{snapshot}\n"
-        f"- Auto-select upstream Qt6 PLUS {version} snapshot {snapshot}\n\n"
+        f"- Auto-select upstream WS Qt6 {version} snapshot {snapshot}\n\n"
     )
     text = re.sub(r"(?m)^%changelog\n", f"%changelog\n{entry}", text, count=1)
     spec_path.write_text(text)

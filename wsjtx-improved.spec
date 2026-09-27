@@ -1,11 +1,11 @@
-# WSJT-X Improved PLUS (DG2YCB) for Fedora Copr
-# Source is the official Qt6 PLUS tarball from SourceForge.
-# Version / snapshot below are the last-known PLUS drop and a fallback if
-# SourceForge cannot be queried. .copr/Makefile rewrites them to the newest
-# standard Qt6 PLUS tarball before the SRPM is generated.
+# WS (formerly WSJT-X Improved) Qt6 for Fedora Copr.
+# RPM name stays wsjtx-improved. Source is the standard GUI Qt6 tarball:
+#   WS_vVERSION/Source code/Qt6/ws-VERSION_YYMMDD_qt6.tgz
+# Version / snapshot below are the last-known drop and a fallback if
+# SourceForge cannot be queried. .copr/Makefile rewrites them before the SRPM.
 
-%define snapshot 260908
-%define oname    wsjtx
+%define snapshot 260924
+%define oname    ws
 
 # Fortran trampolines still need an executable stack on gfortran
 %undefine _hardened_linker_errors
@@ -13,11 +13,11 @@
 Name:           wsjtx-improved
 Version:        3.2.0
 Release:        5.%{snapshot}%{?dist}
-Summary:        WSJT-X Improved PLUS by DG2YCB (weak-signal amateur radio)
+Summary:        WS (formerly WSJT-X Improved) by DG2YCB (weak-signal amateur radio)
 
 License:        GPL-3.0-or-later
 URL:            https://sourceforge.net/projects/wsjt-x-improved
-Source0:        https://downloads.sourceforge.net/project/wsjt-x-improved/WSJT-X_v%{version}/Source%%20code/Qt6/%{oname}-%{version}_improved_PLUS_%{snapshot}_qt6.tgz
+Source0:        https://downloads.sourceforge.net/project/wsjt-x-improved/WS_v%{version}/Source%%20code/Qt6/%{oname}-%{version}_%{snapshot}_qt6.tgz
 
 ExcludeArch:    i686
 
@@ -28,7 +28,7 @@ BuildRequires:  make
 BuildRequires:  desktop-file-utils
 BuildRequires:  dos2unix
 BuildRequires:  pkgconfig
-# Copr builds should resolve this from xsnrg/hamlib. 3.2.0 PLUS tracks 4.7.2.
+# Copr builds should resolve this from xsnrg/hamlib. Bundled hamlib is deleted.
 BuildRequires:  hamlib-devel >= 4.7.2
 BuildRequires:  fftw-devel
 BuildRequires:  libusbx-devel
@@ -49,13 +49,13 @@ Conflicts:      wsjtx
 Provides:       wsjtx = %{version}-%{release}
 
 %description
-WSJT-X Improved PLUS is an enhanced edition of WSJT-X published by
+WS, formerly WSJT-X Improved, is an enhanced edition of WSJT-X published by
 Uwe Risse, DG2YCB. It keeps the familiar WSJT-X workflow and adds
 features such as CQ/73 highlighting, mode buttons, band hopping,
 DX-oriented FT8/FT4 decoding, False Decodes Reduction, Wait and
 Reply/Call, audible alerts, and Cloudlog support.
 
-This package is built from the Qt6 PLUS source tarball and conflicts
+This package is built from the Qt6 source tarball and conflicts
 with Fedora's official wsjtx package because both install /usr/bin/wsjtx.
 
 Modes include FST4, FST4W, FT4, FT8, FT2, JT4, JT9, JT65, Q65,
@@ -126,7 +126,7 @@ cd %{oname}
 %cmake_install
 
 # Drop bundled hamlib helper binaries; use system hamlib
-rm -f %{buildroot}%{_bindir}/rigctl*-wsjtx
+rm -f %{buildroot}%{_bindir}/rigctl*-ws
 
 # Drop CMake test helper if it got installed
 rm -f %{buildroot}%{_bindir}/inhibit-test
@@ -141,7 +141,7 @@ if [ -f %{buildroot}%{_bindir}/ALLCALL7.TXT ]; then
 fi
 
 if [ -f %{buildroot}%{_datadir}/applications/%{oname}.desktop ]; then
-    desktop-file-edit --set-key=Exec --set-value="wsjtx --style=fusion" \
+    desktop-file-edit --set-key=Exec --set-value="ws --style=fusion" \
         %{buildroot}%{_datadir}/applications/%{oname}.desktop
     desktop-file-validate %{buildroot}%{_datadir}/applications/%{oname}.desktop
 fi
@@ -150,7 +150,7 @@ if [ -f %{buildroot}%{_datadir}/applications/message_aggregator.desktop ]; then
 fi
 
 mkdir -p %{buildroot}%{_datadir}/doc/%{name}
-echo "WSJT-X Improved PLUS %{version} snapshot %{snapshot} (Qt6)" \
+echo "WS %{version} snapshot %{snapshot} (Qt6)" \
     > %{buildroot}%{_datadir}/doc/%{name}/PLUS_VERSION.txt
 
 %files
@@ -158,13 +158,16 @@ echo "WSJT-X Improved PLUS %{version} snapshot %{snapshot} (Qt6)" \
 %doc %{oname}/NEWS %{oname}/README %{oname}/THANKS
 %doc %{_datadir}/doc/%{name}
 %{_bindir}/*
-%{_datadir}/applications/wsjtx.desktop
+%{_datadir}/applications/ws.desktop
 %{_datadir}/applications/message_aggregator.desktop
-%{_datadir}/pixmaps/wsjtx_icon.png
+%{_datadir}/pixmaps/ws_icon.png
 %{_datadir}/%{oname}/
-%{_datadir}/doc/wsjtx/
+%{_datadir}/doc/ws/
 
 %changelog
+* Sun Sep 27 2026 Jim Howard <xsnrg@users.noreply.github.com> - 3.2.0-5.260924
+- Track upstream WS rename: ws-3.2.0_260924_qt6.tgz
+
 * Tue Sep 08 2026 Jim Howard <xsnrg@users.noreply.github.com> - 3.2.0-5.260908
 - Always resolve the newest Qt6 PLUS tarball when generating the SRPM
 - Rebuild against PLUS snapshot 260908

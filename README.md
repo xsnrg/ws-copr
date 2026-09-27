@@ -9,7 +9,7 @@ This package **conflicts with** Fedora's official `wsjtx`. Both install `/usr/bi
 Current pin (fallback if SourceForge cannot be queried; Copr rewrites this at SRPM time):
 
 - Version: `3.2.0`
-- PLUS snapshot: `260908`
+- PLUS snapshot: `260924`
 - Source: Qt6 PLUS tarball (standard GUI, not AL / widescreen)
 
 ## Always build the latest PLUS drop
@@ -19,7 +19,7 @@ Two pieces keep the Copr package on the newest official Qt6 PLUS tarball:
 1. **`.copr/Makefile`** runs `scripts/discover_latest.py` before `rpmbuild -bs`.
    Every Copr rebuild (webhook, `copr-cli build-package`, or the web UI)
    looks up the newest
-   `wsjtx-X.Y.Z_improved_PLUS_YYMMDD_qt6.tgz` on SourceForge and rewrites
+   `ws-X.Y.Z_YYMMDD_qt6.tgz` on SourceForge and rewrites
    `Version` / `%snapshot` in the spec.
 2. **`.github/workflows/watch-upstream.yml`** checks SourceForge daily. When
    DG2YCB publishes a newer drop it commits the new pin here. Copr
