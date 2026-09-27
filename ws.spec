@@ -12,7 +12,7 @@
 
 Name:           ws
 Version:        3.2.0
-Release:        6.%{snapshot}%{?dist}
+Release:        7.%{snapshot}%{?dist}
 Summary:        WS (formerly WSJT-X Improved) by DG2YCB (weak-signal amateur radio)
 
 License:        GPL-3.0-or-later
@@ -80,7 +80,7 @@ sed -i -e '/^install (TARGETS udp_daemon wsjtx_app_version$/d' CMakeLists.txt
 # lib/ft8var/cwfilter.f90 opens it as a relative name, and the GUI
 # launches jt9 with -e /usr/bin. status='unknown' would otherwise
 # try to create /usr/bin/ALLCALL7.TXT (permission denied).
-sed -i -z -e 's@install (DIRECTORY\n  ${PROJECT_SOURCE_DIR}/sounds\n  DESTINATION ${CMAKE_INSTALL_BINDIR}@install (DIRECTORY\n  ${PROJECT_SOURCE_DIR}/sounds\n  DESTINATION ${CMAKE_INSTALL_DATADIR}/${CMAKE_PROJECT_NAME}@g' CMakeLists.txt
+sed -i -z -e 's@install (DIRECTORY\n  ${PROJECT_SOURCE_DIR}/sounds\n  DESTINATION ${CMAKE_INSTALL_BINDIR}@install (DIRECTORY\n  ${PROJECT_SOURCE_DIR}/sounds\n  DESTINATION ${CMAKE_INSTALL_DATADIR}/${WS_DATA_DIR_NAME}@g' CMakeLists.txt
 sed -i -e "s@open(24,file='ALLCALL7.TXT',status='unknown')@open(24,file=trim(exe_dir)//'/ALLCALL7.TXT',status='old',action='read',err=20)@" \
     lib/ft8var/cwfilter.f90
 
@@ -161,6 +161,9 @@ echo "WS %{version} snapshot %{snapshot} (Qt6)" \
 %{_datadir}/%{oname}/
 
 %changelog
+* Sun Sep 27 2026 Jim Howard <xsnrg@users.noreply.github.com> - 3.2.0-7.260924
+- Install sounds under /usr/share/ws, not /usr/share/wsjtx
+
 * Sun Sep 27 2026 Jim Howard <xsnrg@users.noreply.github.com> - 3.2.0-6.260924
 - Rename the package from wsjtx-improved to ws
 
