@@ -2,8 +2,7 @@
 """Find the newest WS Qt6 source tarball on SourceForge.
 
 Upstream renamed WSJT-X Improved to WS. Standard GUI tarball:
-  WS_vX.Y.Z/Source code/ws-X.Y.Z_YYMMDD.tgz          (3.2.1+)
-  WS_vX.Y.Z/Source code/Qt6/ws-X.Y.Z_YYMMDD_qt6.tgz  (3.2.0)
+  WS_vX.Y.Z/Source code/Qt6/ws-X.Y.Z_YYMMDD_qt6.tgz
 (not _AL_ or _widescreen_).
 
 Used by .copr/Makefile at SRPM time and by the GitHub Actions watcher.
@@ -26,15 +25,14 @@ USER_AGENT = (
 )
 
 # Standard Qt6 GUI only. _AL_ and _widescreen_ do not match: the snapshot
-# must follow the version immediately. The Qt6/ subfolder and _qt6 suffix
-# existed through 3.2.0 and disappeared in 3.2.1.
+# must follow the version immediately.
 TARBALL_RE = re.compile(
-    r"WS_v(\d+\.\d+\.\d+)/Source(?:%20| )code/(?:Qt6/)?"
-    r"ws-\1_(\d{6})(?:_qt6)?\.tgz"
+    r"WS_v(\d+\.\d+\.\d+)/Source(?:%20| )code/Qt6/"
+    r"ws-\1_(\d{6})_qt6\.tgz"
 )
 FOLDER_RE = re.compile(r"WS_v(\d+\.\d+\.\d+)")
 QT6_NAME_RE = re.compile(
-    r"(?<![A-Za-z0-9_])ws-(\d+\.\d+\.\d+)_(\d{6})(?:_qt6)?\.tgz"
+    r"(?<![A-Za-z0-9_])ws-(\d+\.\d+\.\d+)_(\d{6})_qt6\.tgz"
 )
 
 
@@ -99,16 +97,14 @@ def discover() -> tuple[str, str]:
     versions = sorted(set(versions), key=lambda v: _ver_key(v, "0"))
 
     # Probe the newest series folders directly; SF index pages are often JS-heavy.
-    # 3.2.1+ dropped the Qt6/ subfolder, so probe both layouts.
     for version in reversed(versions[-3:] or []):
-        for listing in (
-            f"{PROJECT_FILES}WS_v{version}/Source%20code/",
-            f"{PROJECT_FILES}WS_v{version}/Source%20code/Qt6/",
-        ):
-            try:
-                found.extend(_from_text(_curl(listing)))
-            except RuntimeError:
-                pass  # one of the two layouts is expected to 404
+        qt6 = (
+            f"{PROJECT_FILES}WS_v{version}/Source%20code/Qt6/"
+        )
+        try:
+            found.extend(_from_text(_curl(qt6)))
+        except RuntimeError as exc:
+            print(f"warning: Qt6 listing {qt6} failed: {exc}", file=sys.stderr)
 
     best = _best(found)
     if best is None:
