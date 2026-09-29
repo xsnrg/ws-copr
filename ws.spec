@@ -1,24 +1,23 @@
 # WS (formerly WSJT-X Improved) Qt6 for Fedora Copr.
 # Source is the standard GUI Qt6 tarball:
-#   WS_vVERSION/Source code/ws-VERSION_YYMMDD.tgz   (3.2.1+, Qt6-only tree)
-#   WS_vVERSION/Source code/Qt6/ws-VERSION_YYMMDD_qt6.tgz  (3.2.0)
+#   WS_vVERSION/Source code/Qt6/ws-VERSION_YYMMDD_qt6.tgz
 # Version / snapshot below are the last-known drop and a fallback if
 # SourceForge cannot be queried. .copr/Makefile rewrites them before the SRPM.
 
-%define snapshot 260926
+%define snapshot 260924
 %define oname    ws
 
 # Fortran trampolines still need an executable stack on gfortran
 %undefine _hardened_linker_errors
 
 Name:           ws
-Version:        3.2.1
-Release:        1.%{snapshot}%{?dist}
+Version:        3.2.0
+Release:        7.%{snapshot}%{?dist}
 Summary:        WS (formerly WSJT-X Improved) by DG2YCB (weak-signal amateur radio)
 
 License:        GPL-3.0-or-later
 URL:            https://sourceforge.net/projects/wsjt-x-improved
-Source0:        https://downloads.sourceforge.net/project/wsjt-x-improved/WS_v%{version}/Source%%20code/%{oname}-%{version}_%{snapshot}.tgz
+Source0:        https://downloads.sourceforge.net/project/wsjt-x-improved/WS_v%{version}/Source%%20code/Qt6/%{oname}-%{version}_%{snapshot}_qt6.tgz
 
 ExcludeArch:    i686
 
@@ -162,10 +161,6 @@ echo "WS %{version} snapshot %{snapshot} (Qt6)" \
 %{_datadir}/%{oname}/
 
 %changelog
-* Tue Sep 29 2026 Jim Howard <xsnrg@users.noreply.github.com> - 3.2.1-1.260926
-- Track WS 3.2.1 snapshot 260926
-- Source layout changed: WS_vVERSION/Source code/ws-VERSION_SNAPSHOT.tgz
-
 * Sun Sep 27 2026 Jim Howard <xsnrg@users.noreply.github.com> - 3.2.0-7.260924
 - Install sounds under /usr/share/ws, not /usr/share/wsjtx
 

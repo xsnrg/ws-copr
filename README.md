@@ -8,8 +8,8 @@ The program is `/usr/bin/ws`. It does not replace Fedora's `wsjtx`.
 
 Current pin (fallback if SourceForge cannot be queried; Copr rewrites this at SRPM time):
 
-- Version: `3.2.1`
-- PLUS snapshot: `260926`
+- Version: `3.2.0`
+- PLUS snapshot: `260924`
 - Source: Qt6 PLUS tarball (standard GUI, not AL / widescreen)
 
 ## Always build the latest PLUS drop
