@@ -27,6 +27,11 @@ Two pieces keep the Copr package on the newest official Qt6 PLUS tarball:
 
 Manual spec bumps are no longer required for ordinary PLUS updates.
 
+**Qt6 gap (2026-09):** upstream stopped publishing Qt6 sources after
+3.2.0_260924. WS 3.2.1+ drops are Qt5-only (`find_package (Qt5 ...
+REQUIRED)`), so discovery deliberately ignores them and the package stays on
+Qt6 3.2.0 until DG2YCB ships a new `*_qt6.tgz`.
+
 ```bash
 # See what SourceForge currently publishes
 python3 scripts/discover_latest.py --print

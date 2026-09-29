@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 """Find the newest WS Qt6 source tarball on SourceForge.
 
-Upstream renamed WSJT-X Improved to WS. Standard GUI tarball:
+Upstream renamed WSJT-X Improved to WS. Standard GUI Qt6 tarball:
   WS_vX.Y.Z/Source code/Qt6/ws-X.Y.Z_YYMMDD_qt6.tgz
 (not _AL_ or _widescreen_).
+
+Qt6 drops stopped with 3.2.0: WS 3.2.1+ publishes Qt5-only sources and must
+not be picked up -- only *_qt6.tgz names are matched, wherever upstream puts
+them (the Qt6/ subfolder may or may not exist).
 
 Used by .copr/Makefile at SRPM time and by the GitHub Actions watcher.
 """
@@ -25,9 +29,11 @@ USER_AGENT = (
 )
 
 # Standard Qt6 GUI only. _AL_ and _widescreen_ do not match: the snapshot
-# must follow the version immediately.
+# must follow the version immediately. The _qt6 suffix is required so the
+# Qt5-only 3.2.1+ tarballs are never selected. The Qt6/ subfolder is
+# optional in case future drops skip it.
 TARBALL_RE = re.compile(
-    r"WS_v(\d+\.\d+\.\d+)/Source(?:%20| )code/Qt6/"
+    r"WS_v(\d+\.\d+\.\d+)/Source(?:%20| )code/(?:Qt6/)?"
     r"ws-\1_(\d{6})_qt6\.tgz"
 )
 FOLDER_RE = re.compile(r"WS_v(\d+\.\d+\.\d+)")
@@ -97,14 +103,16 @@ def discover() -> tuple[str, str]:
     versions = sorted(set(versions), key=lambda v: _ver_key(v, "0"))
 
     # Probe the newest series folders directly; SF index pages are often JS-heavy.
+    # Probe both layouts; 3.2.1+ has no Qt6/ subfolder (only its Qt5 drops).
     for version in reversed(versions[-3:] or []):
-        qt6 = (
-            f"{PROJECT_FILES}WS_v{version}/Source%20code/Qt6/"
-        )
-        try:
-            found.extend(_from_text(_curl(qt6)))
-        except RuntimeError as exc:
-            print(f"warning: Qt6 listing {qt6} failed: {exc}", file=sys.stderr)
+        for listing in (
+            f"{PROJECT_FILES}WS_v{version}/Source%20code/",
+            f"{PROJECT_FILES}WS_v{version}/Source%20code/Qt6/",
+        ):
+            try:
+                found.extend(_from_text(_curl(listing)))
+            except RuntimeError:
+                pass  # a missing listing layout is expected
 
     best = _best(found)
     if best is None:
